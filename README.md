@@ -1,4 +1,4 @@
-# bitfunes-tutorial
+# NODE TODO APP BASICS
 
 ## Project setup
 ```
