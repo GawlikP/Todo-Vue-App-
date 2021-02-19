@@ -1,41 +1,90 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+    <SomeWierdIcon />
+
+
+    <form class="form-group" @submit.prevent="addTodo()">
+		<label>New ToDo </label><br>
+		<input class="form-text" v-model="newTodo" name="newTodo" autocomplete="off">
+		<button class="btn btn-success">Add ToDo</button>
+	</form>
+	<h2>ToDo List</h2>
+	<ul>
+		<li v-for="(todo, index) in todos" :key="index">
+			<span class="alert alert-info" :class="{ 'alert alert-danger done': todo.done }" @click="doneTodo(todo)" >
+        {{ todo.content }}</span>
+			<button class="btn btn-danger" @click="removeTodo(index)">Remove</button>
+      <button class="btn btn-warning" @click="doneTodo(todo)">Done</button>
+		</li><br>
+	</ul>
+	<h4 v-if="todos.length === 0">Empty list.</h4>
+
+
   </div>
 </template>
 
 <script>
+
+
+import SomeWierdIcon from './SomeWierdIcon.vue';
+import { ref }  from 'vue';
+
 export default {
   name: 'HelloWorld',
+  components: {
+    SomeWierdIcon
+  },
+  
+  setup() {
+    const newTodo = ref('');
+    const defaultData = [{
+      done: false,
+      content: 'Write a blog post'
+    }]
+    const todosData = JSON.parse(localStorage.getItem('todos')) || defaultData;
+
+    const todos = ref(todosData)
+
+    function addTodo(){
+      if(newTodo.value){
+        todos.value.push({
+          done: false,
+          content: newTodo.value
+        })
+        newTodo.value = '';
+      }
+    }
+
+    function doneTodo(todo){
+      todo.done = !todo.done
+      saveData()
+    }
+    function saveData(){
+      const storageData = JSON.stringify(todos.value);
+      localStorage.setItem('todos', storageData)
+    }
+    function removeTodo(index){
+      todos.value.splice(index,1)
+      saveData();
+    }
+
+    return {
+        todos,
+				newTodo,
+				addTodo,
+				doneTodo,
+				removeTodo,
+				saveData
+    }
+
+  },
+  
   props: {
     msg: String
-  }
+  },
+
+  
 }
 </script>
 
@@ -54,5 +103,12 @@ li {
 }
 a {
   color: #42b983;
+}
+#done {
+  color: red;
+}
+.done{
+  color: red;
+  font-weight: bolder;
 }
 </style>
